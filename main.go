@@ -28,12 +28,19 @@ func main() {
 		switch {
 		case strings.ToLower(arrayStr[0]) == "add":
 			// add[#space]code_of_book(unique)[#space]name_of_book	(add	new	book	to	inventory
-			m := MyBoxItem{CodeOfBook: arrayStr[1], NamOfBook: arrayStr[2], IsRented: false}
-			go addBook(m)
+			resp := checkBook(arrayStr[1])
+			if resp == "" {
+				m := MyBoxItem{CodeOfBook: arrayStr[1], NamOfBook: arrayStr[2], IsRented: false}
+				go addBook(m)
 
-			var message1 = <-messages
-			fmt.Println(message1)
+				var message1 = <-messages
+				fmt.Println(message1)
+				fmt.Print("cmd : ")
+				break
+			}
+			fmt.Println("code_of_book must be unique!")
 			fmt.Print("cmd : ")
+
 		case strings.ToLower(arrayStr[0]) == "rent":
 			// rent[#space]code_of_book	(for	update	status	of	book	rented)
 			go rentBook(arrayStr[1])
@@ -68,6 +75,7 @@ func main() {
 			os.Exit(1)
 		default:
 			fmt.Println("command undefined!")
+			fmt.Print("cmd : ")
 		}
 	}
 }
@@ -173,4 +181,14 @@ func returnBook(code string) {
 	}
 	var data = fmt.Sprintf("successfuly returned book : %s", code)
 	messages <- data
+}
+
+func checkBook(code string) string {
+	var data string
+	for _, k := range arr {
+		if k.CodeOfBook == code {
+			data = fmt.Sprint("found!")
+		}
+	}
+	return data
 }
